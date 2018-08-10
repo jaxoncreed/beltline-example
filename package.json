@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "webpack-dev-server --hot",
+    "start": "webpack --config ./webpack.development.js --progress --profile --colors --watch",
     "server": "babel-watch server",
+    "dev": "concurrently \"npm run start\" \"npm run server\"",
     "production": "babel-node server",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -35,6 +36,7 @@
     "babel-jest": "^21.2.0",
     "babel-plugin-react-transform": "^3.0.0",
     "babel-watch": "^2.0.7",
+    "concurrently": "^3.6.1",
     "cross-env": "^5.0.5",
     "enzyme-adapter-react-16": "^1.0.0",
     "eslint": "^4.8.0",
@@ -78,6 +80,8 @@
     "react-redux": "^5.0.6",
     "react-router": "^4.2.0",
     "redux": "^3.7.2",
+    "socket.io": "^2.1.1",
+    "socket.io-client": "^2.1.1",
     "style-loader": "^0.18.2",
     "webpack": "3.6.0"
   }

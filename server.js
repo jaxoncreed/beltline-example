@@ -1,9 +1,12 @@
+import BeltlineServer from './BeltlineServer';
 const path = require('path');
 const express = require('express');
 
 const app = express();
 
-const port = process.env.PORT ? process.env.PORT : 8181;
+const server = require('http').createServer(app);
+
+const port = process.env.PORT ? process.env.PORT : 8080;
 const dist = path.join(__dirname, 'dist');
 
 app.use(express.static(dist));
@@ -12,7 +15,9 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(dist, 'index.html'));
 });
 
-app.listen(port, (error) => {
+const beltline = new BeltlineServer(server);
+
+server.listen(port, (error) => {
   if (error) {
     console.log(error); // eslint-disable-line no-console
   }

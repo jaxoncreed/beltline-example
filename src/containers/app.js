@@ -21,7 +21,9 @@ export class AppContainer extends Component {
     }
 
     return (
-      <div className={styles.container} />
+      <div className={styles.container}>
+        <h1>Hi Y'all</h1>
+      </div>
     );
   }
 }

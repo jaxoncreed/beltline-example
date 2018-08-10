@@ -5,6 +5,8 @@ import { compose, createStore, combineReducers, applyMiddleware } from 'redux';
 import { routerMiddleware, connectRouter } from 'connected-react-router';
 // Import all reducers
 import * as reducers from 'reducers';
+import BeltlineClient from './BeltlineClient';
+import beltlineReduxMiddleware from './beltlineReduxMiddleware';
 
 // Configure reducer to store state at state.router
 // You can store it elsewhere by specifying a custom `routerStateSelector`
@@ -12,10 +14,13 @@ import * as reducers from 'reducers';
 export const history = createBrowserHistory();
 const reducer = combineReducers({ ...reducers });
 
+const beltlineClient = new BeltlineClient('http://localhost:8080');
+
 const store = compose(
   // Enables your middleware:
   // applyMiddleware(thunk), // any Redux middleware, e.g. redux-thunk
   applyMiddleware(routerMiddleware(history)),
+  // applyMiddleware(beltlineReduxMiddleware(beltlineClient)),
   // Provides support for DevTools via Chrome extension
   window.devToolsExtension ? window.devToolsExtension() : f => f
 )(createStore)(connectRouter(history)(reducer));
