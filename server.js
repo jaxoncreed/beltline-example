@@ -1,4 +1,6 @@
 import BeltlineServer from './BeltlineServer';
+import initDatabase from './BeltlineLocalStorageDatabase';
+
 const path = require('path');
 const express = require('express');
 
@@ -15,7 +17,20 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(dist, 'index.html'));
 });
 
-const beltline = new BeltlineServer(server);
+initDatabase(async (db) => {
+  console.log('here be db');
+  console.log(db);
+  db.execute('LOAD <http://dbpedia.org/resource/Tim_Berners-Lee> INTO GRAPH <http://example.org/people>');
+  // await db.load('text/turtle', )
+  console.log('between');
+  console.log(await db.execute(
+    'PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\
+                     PREFIX foaf: <http://xmlns.com/foaf/0.1/>\
+                     PREFIX : <http://example.org/>\
+                     SELECT ?s FROM NAMED :people { GRAPH ?g { ?s rdf:type foaf:Person } }'
+  ));
+  const beltline = new BeltlineServer(server, db);
+});
 
 server.listen(port, (error) => {
   if (error) {
