@@ -1,6 +1,7 @@
 import rdfstore from 'rdfstore';
 import util from 'util';
 
+
 export class BeltlineLocalStorageDatabase {
 
   static store;
@@ -9,8 +10,8 @@ export class BeltlineLocalStorageDatabase {
     
   }
 
-  async loadDataFromFile() {
-    
+  async load(format, stringToLoad) {
+    return await util.promisify(this.store.load.bind(this.store))(format, stringToLoad);
   }
 
   async initDatabase() {
