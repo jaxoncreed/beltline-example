@@ -1,19 +1,22 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { loadApp } from 'actions/app';
-import styles from './app.css';
+import { Link } from 'react-router-dom';
 
-type Props = {
-  dispatch: () => void,
-  loaded: boolean
-}
 
 export class AppContainer extends Component {
   componentDidMount() {
     this.props.dispatch(loadApp());
   }
 
-  props: Props;
+  static propTypes = {
+    loaded: PropTypes.bool,
+    people: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired
+    })).isRequired
+  };
 
   render() {
     if (!this.props.loaded) {
@@ -21,8 +24,18 @@ export class AppContainer extends Component {
     }
 
     return (
-      <div className={styles.container}>
-        <h1>Hi Y'all</h1>
+      <div>
+        <h1>Check out these people:</h1>
+        <Link to="/person/create">Add new person</Link>
+        <ul>
+          {this.props.people.map(person => (
+            <li key={person.id}>
+              <Link to={`/person/${person.id}`}>
+                {person.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
     );
   }
@@ -30,7 +43,8 @@ export class AppContainer extends Component {
 
 function mapStateToProperties(state) {
   return {
-    loaded: state.app.loaded
+    loaded: state.app.loaded,
+    people: Object.values(state.people)
   };
 }
 

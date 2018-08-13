@@ -23,6 +23,7 @@ initDatabase(async (db) => {
   const initttl = await util.promisify(fs.readFile)('./example.ttl', 'utf8');
   await db.load('text/turtle', initttl);
   const beltline = new BeltlineServer(server, db);
+  
 });
 
 server.listen(port, (error) => {

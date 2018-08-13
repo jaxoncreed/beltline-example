@@ -1,10 +1,6 @@
 import React from 'react';
 
-type Props = {
-  children: any
-}
-
-const Layout = (props: Props) =>
+const Layout = (props) =>
   <div>{props.children}</div>;
 
 export default Layout;
