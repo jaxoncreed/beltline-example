@@ -6,6 +6,7 @@ export default class BeltlineServer {
   static db;
   static publishHandlers = {};
   static queries = {};
+  static methods = {};
 
   constructor(app, databaseConnection) {
     this.db = databaseConnection;
@@ -30,9 +31,9 @@ export default class BeltlineServer {
     if (this.publishHandlers[subscriptionName]) {
       const query = this.publishHandlers[subscriptionName](params);
       if (this.queries[query]) {
-        this.queries[query].push({ id, subscriptionName })
+        this.queries[query].push({ id, subscriptionName, socket })
       } else {
-        this.queries[query] = [{ id, subscriptionName }];
+        this.queries[query] = [{ id, subscriptionName, socket }];
       }
       const graph = await this.db.execute(query);
       socket.emit('published', {
@@ -45,23 +46,34 @@ export default class BeltlineServer {
     }
   }
 
-  onCall(methodName, params, socket) {
-
+  async onCall(methodName, params, socket) {
+    await this.methods[methodName](params);
+    await Promise.map(Object.keys(this.queries), (query) => {
+      const clientInfo = this.queries[query];
+      const graph = await this.db.execute(query);
+      clientInfo.forEach((client) => {
+        client.socket.emit('update', { id: cleint.id, graph })
+      });
+    });
   }
 
   onUnsubscribe(id, socket) {
-
+    Object.keys(this.queries).forEach((query) => {
+      this.queries[query] = this.queries[query].filter(clientInfo => clientInfo.id !== id);
+    });
   }
 
   onDisconnect(socket) {
-
+    Object.keys(this.queries).forEach((query) => {
+      this.queries[query] = this.queries[query].filter(clientInfo => clientInfo.socket !== socket);
+    });
   }
 
   publish(subscriptionName, publishHandler) {
-
+    this.publishHandlers[subscriptionName] = publishHandler;
   }
 
   method(methodName, method) {
-
+    this.methods[methodName] = method;
   }
 }
