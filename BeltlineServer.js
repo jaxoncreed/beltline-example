@@ -48,7 +48,7 @@ export default class BeltlineServer {
 
   async onCall(methodName, params, socket) {
     await this.methods[methodName](params);
-    await Promise.map(Object.keys(this.queries), (query) => {
+    await Promise.map(Object.keys(this.queries), async (query) => {
       const clientInfo = this.queries[query];
       const graph = await this.db.execute(query);
       clientInfo.forEach((client) => {
