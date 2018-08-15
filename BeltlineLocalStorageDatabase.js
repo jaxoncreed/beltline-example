@@ -1,5 +1,5 @@
 import rdfstore from 'rdfstore/src/store';
-import util from 'util';
+import { promisify } from 'bluebird';
 
 
 export class BeltlineLocalStorageDatabase {
@@ -11,15 +11,19 @@ export class BeltlineLocalStorageDatabase {
   }
 
   async load(format, stringToLoad) {
-    return await util.promisify(this.store.load.bind(this.store))(format, stringToLoad);
+    return await promisify(this.store.load.bind(this.store))(format, stringToLoad);
   }
 
   async initDatabase() {
-    this.store = await util.promisify(rdfstore.create.bind(rdfstore))();
+    this.store = await promisify(rdfstore.create.bind(rdfstore))();
   }
 
   async execute(query) {
-    return await util.promisify(this.store.execute.bind(this.store))(query);
+    return await promisify(this.store.execute.bind(this.store))(query);
+  }
+
+  async clear() {
+    return await promisify(this.store.clear.bind(this.store))();
   }
 }
 

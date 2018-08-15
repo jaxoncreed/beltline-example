@@ -22,6 +22,8 @@ export function subscribePeople() {
 export function subscribePerson(id) {
   return async (dispatch, getState, { beltline }) => {
     const subscription = await beltline.subscribe('person', { id }, (newGraph) => {
+      console.log('NEW GRAPH');
+      console.log(newGraph);
       const peopleTriples = newGraph.triples.filter(t => 
         t.predicate.nominalValue === 'http://www.w3.org/1999/02/22-rdf-syntax-ns#name');
       const peopleJSON = peopleTriples.map(t => ({

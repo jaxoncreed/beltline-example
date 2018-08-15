@@ -36,7 +36,7 @@ export class PersonConatiner extends Component {
             id="name"
             type="text"
             value={this.props.person.name}
-            onChange={(e) => this.props.dispatch(changeName(e.target.value))}
+            onChange={(e) => this.props.dispatch(changeName(this.props.name, e.target.value))}
           />
         </form>
       </div>

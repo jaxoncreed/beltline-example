@@ -1,8 +1,6 @@
 import io from 'socket.io-client';
-import rdfstore from 'rdfstore';
-import Promise, { promisify } from 'bluebird';
-
-const rdfstoreCreate = promisify(rdfstore.create.bind(rdfstore));
+import Promise from 'bluebird';
+import { BeltlineLocalStorageDatabase } from '../../BeltlineLocalStorageDatabase';
 
 export default class Beltline {
 
@@ -22,10 +20,10 @@ export default class Beltline {
   async onUpdate(id, graph) {
     if (this.subscriptions[id]) {
       const subscription = this.subscriptions[id];
-      await promisify(subscription.store.clear.bind(subscription.store))();
-      await promisify(subscription.store.load.bind(subscription.store))('text/n3', graph);
+      await subscription.store.clear();
+      await subscription.store.load('text/n3', graph);
       await subscription.onUpdate(
-        await promisify(subscription.store.execute.bind(subscription.store))(subscription.query)
+        await subscription.store.execute(subscription.query)
       );
     } else {
       console.warn('Received an update with a subscription id that does not exist');
@@ -48,11 +46,13 @@ export default class Beltline {
       this.subscriptions[id].isActive = true;
       this.subscriptions[id].onUpdate = onSubscriptionUpdated;
     } else {
+      const store = new BeltlineLocalStorageDatabase();
+      await store.initDatabase();
       this.subscriptions[id] = {
         id,
         isActive: true,
         loaded: false,
-        store: await rdfstoreCreate(),
+        store,
         onUpdate: onSubscriptionUpdated
       }
     }
@@ -68,6 +68,7 @@ export default class Beltline {
     this.methods[methodName] = method;
   }
 
+  // TODO: create an id for the call so that it doesn't update this client on update
   async call(methodName, params) {
     if (this.methods[methodName]) {
       this.socket.emit('call', {
@@ -78,7 +79,7 @@ export default class Beltline {
         if (subscription.loaded) {
           await this.methods[methodName](params, subscription.store);
           const graph = await subscription.store.execute(subscription.query);
-          await this.onUpdate(subscription.id, graph);
+          await this.onUpdate(subscription.id, graph.toNT());
         }
       });
     } else {
