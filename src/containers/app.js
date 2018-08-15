@@ -1,28 +1,23 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { loadApp } from 'actions/app';
 import { Link } from 'react-router-dom';
+import { subscribePeople } from 'actions/peopleActions';
 
 
 export class AppContainer extends Component {
   componentDidMount() {
-    this.props.dispatch(loadApp());
+    this.props.dispatch(subscribePeople());
   }
 
   static propTypes = {
-    loaded: PropTypes.bool,
     people: PropTypes.arrayOf(PropTypes.shape({
       id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired
-    })).isRequired
+    })).isRequired,
+    dispatch: PropTypes.func.isRequired
   };
-
   render() {
-    if (!this.props.loaded) {
-      return null;
-    }
-
     return (
       <div>
         <h1>Check out these people:</h1>
@@ -44,7 +39,7 @@ export class AppContainer extends Component {
 function mapStateToProperties(state) {
   return {
     loaded: state.app.loaded,
-    people: Object.values(state.people)
+    people: state.people.people
   };
 }
 

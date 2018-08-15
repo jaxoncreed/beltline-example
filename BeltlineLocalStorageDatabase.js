@@ -1,4 +1,4 @@
-import rdfstore from 'rdfstore';
+import rdfstore from 'rdfstore/src/store';
 import util from 'util';
 
 

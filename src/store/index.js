@@ -6,7 +6,10 @@ import { routerMiddleware, connectRouter } from 'connected-react-router';
 // Import all reducers
 import * as reducers from 'reducers';
 import BeltlineClient from './BeltlineClient';
-import beltlineReduxMiddleware from './beltlineReduxMiddleware';
+import thunk from 'redux-thunk';
+
+import personApi from '../../beltlineMethods/personApi';
+
 
 // Configure reducer to store state at state.router
 // You can store it elsewhere by specifying a custom `routerStateSelector`
@@ -15,11 +18,14 @@ export const history = createBrowserHistory();
 const reducer = combineReducers({ ...reducers });
 
 const beltlineClient = new BeltlineClient('http://localhost:8080');
+personApi(beltlineClient);
 
 const store = compose(
   // Enables your middleware:
-  // applyMiddleware(thunk), // any Redux middleware, e.g. redux-thunk
-  applyMiddleware(routerMiddleware(history)),
+  applyMiddleware(
+    thunk.withExtraArgument({ beltline: beltlineClient }),
+    routerMiddleware(history)
+  ),
   // applyMiddleware(beltlineReduxMiddleware(beltlineClient)),
   // Provides support for DevTools via Chrome extension
   window.devToolsExtension ? window.devToolsExtension() : f => f

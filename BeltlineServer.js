@@ -1,17 +1,17 @@
 
 import socketIO from 'socket.io';
+import Promise from 'bluebird';
 
 export default class BeltlineServer {
-  static io;
-  static db;
-  static publishHandlers = {};
-  static queries = {};
-  static methods = {};
-
   constructor(app, databaseConnection) {
     this.db = databaseConnection;
 
     this.io = socketIO(app);
+
+    this.publishHandlers = {};
+    this.queries = {};
+    this.methods = {};
+    this.isServer = true;
 
     this.io.on('connection', (socket) => {
       socket.on('subscribe', ({
@@ -36,9 +36,10 @@ export default class BeltlineServer {
         this.queries[query] = [{ id, subscriptionName, socket }];
       }
       const graph = await this.db.execute(query);
+      console.log(graph.toNT());
       socket.emit('published', {
         id,
-        graph,
+        graph: graph.toNT(),
         query
       });
     } else {
@@ -47,12 +48,12 @@ export default class BeltlineServer {
   }
 
   async onCall(methodName, params, socket) {
-    await this.methods[methodName](params);
+    await this.methods[methodName](params, this.db);
     await Promise.map(Object.keys(this.queries), async (query) => {
       const clientInfo = this.queries[query];
       const graph = await this.db.execute(query);
       clientInfo.forEach((client) => {
-        client.socket.emit('update', { id: cleint.id, graph })
+        client.socket.emit('update', { id: client.id, graph: graph.toNT() })
       });
     });
   }

@@ -2,6 +2,7 @@ import BeltlineServer from './BeltlineServer';
 import initDatabase from './BeltlineLocalStorageDatabase';
 import util from 'util';
 import fs from 'fs';
+import personApi from './beltlineMethods/personApi';
 
 const path = require('path');
 const express = require('express');
@@ -23,6 +24,7 @@ initDatabase(async (db) => {
   const initttl = await util.promisify(fs.readFile)('./example.ttl', 'utf8');
   await db.load('text/turtle', initttl);
   const beltline = new BeltlineServer(server, db);
+  personApi(beltline);
   
 });
 
