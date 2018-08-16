@@ -14,15 +14,12 @@ export default class BeltlineServer {
     this.isServer = true;
 
     this.io.on('connection', (socket) => {
-      socket.on('subscribe', ({
-        id,
-        subscriptionName,
-        params
-      }) => this.onSubscribe(id, subscriptionName, params, socket));
-      socket.on('call', ({ methodName, params }) => this.onCall(methodName, params, socket));
-      socket.on('unsubscribe', ({ 
-        id
-      }) => this.onUnsubscribe(id, socket));
+      socket.on('subscribe', ({ id, subscriptionName, params }) =>
+        this.onSubscribe(id, subscriptionName, params, socket));
+      socket.on('call', ({ methodName, params, callId }) =>
+        this.onCall(methodName, params, callId, socket));
+      socket.on('unsubscribe', ({ id }) =>
+        this.onUnsubscribe(id, socket));
       socket.on('disconnect', () => this.onDisconnect(socket))
     });
   }
@@ -36,7 +33,6 @@ export default class BeltlineServer {
         this.queries[query] = [{ id, subscriptionName, socket }];
       }
       const graph = await this.db.execute(query);
-      console.log(graph.toNT());
       socket.emit('published', {
         id,
         graph: graph.toNT(),
@@ -47,13 +43,17 @@ export default class BeltlineServer {
     }
   }
 
-  async onCall(methodName, params, socket) {
+  async onCall(methodName, params, callId, socket) {
     await this.methods[methodName](params, this.db);
     await Promise.map(Object.keys(this.queries), async (query) => {
       const clientInfo = this.queries[query];
       const graph = await this.db.execute(query);
       clientInfo.forEach((client) => {
-        client.socket.emit('update', { id: client.id, graph: graph.toNT() })
+        client.socket.emit('update', {
+          id: client.id,
+          graph: graph.toNT(),
+          callId
+        })
       });
     });
   }

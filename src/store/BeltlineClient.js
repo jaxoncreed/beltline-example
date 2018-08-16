@@ -1,6 +1,7 @@
 import io from 'socket.io-client';
 import Promise from 'bluebird';
 import { BeltlineLocalStorageDatabase } from '../../BeltlineLocalStorageDatabase';
+import { v4 } from 'uuid';
 
 export default class Beltline {
 
@@ -8,16 +9,21 @@ export default class Beltline {
     this.subscriptions = {};
     this.methods = {};
     this.isServer = false;
+    this.callIds = new Set();
 
     this.socket = io(connectUrl);
     this.socket.on('connect', () => {
       console.log('connected to beltline');
     });
-    this.socket.on('update', ({ id, graph }) => this.onUpdate(id, graph));
+    this.socket.on('update', ({ id, graph, callId }) => this.onUpdate(id, graph, callId));
     this.socket.on('published', ({ id, graph, query }) => this.onPublished(id, graph, query))
   }
 
-  async onUpdate(id, graph) {
+  async onUpdate(id, graph, callId) {
+    if (this.callIds.has(callId)) {
+      this.callIds.delete(callId);
+      return;
+    }
     if (this.subscriptions[id]) {
       const subscription = this.subscriptions[id];
       await subscription.store.clear();
@@ -68,12 +74,14 @@ export default class Beltline {
     this.methods[methodName] = method;
   }
 
-  // TODO: create an id for the call so that it doesn't update this client on update
   async call(methodName, params) {
     if (this.methods[methodName]) {
+      const callId = v4();
+      this.callIds.add(callId);
       this.socket.emit('call', {
         methodName,
-        params
+        params,
+        callId
       });
       await Promise.map(Object.values(this.subscriptions), async (subscription) => {
         if (subscription.loaded) {
