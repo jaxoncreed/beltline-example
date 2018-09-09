@@ -1,5 +1,6 @@
-import BeltlineServer from './BeltlineServer';
-import initDatabase from './BeltlineLocalStorageDatabase';
+
+import BeltlineServer from 'beltline';
+import initDatabase from 'beltline-local-storage-database';
 import util from 'util';
 import fs from 'fs';
 import personApi from './beltlineMethods/personApi';
@@ -25,7 +26,6 @@ initDatabase(async (db) => {
   await db.load('text/turtle', initttl);
   const beltline = new BeltlineServer(server, db);
   personApi(beltline);
-  
 });
 
 server.listen(port, (error) => {

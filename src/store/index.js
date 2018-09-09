@@ -5,7 +5,7 @@ import { compose, createStore, combineReducers, applyMiddleware } from 'redux';
 import { routerMiddleware, connectRouter } from 'connected-react-router';
 // Import all reducers
 import * as reducers from 'reducers';
-import BeltlineClient from './BeltlineClient';
+import BeltlineClient from 'beltline-client';
 import thunk from 'redux-thunk';
 
 import personApi from '../../beltlineMethods/personApi';

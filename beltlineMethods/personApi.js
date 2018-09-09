@@ -1,5 +1,5 @@
 
-export default function(beltline) {
+export default function personApi(beltline) {
   if (beltline.isServer) {
     beltline.publish('people', () => {
       return `
@@ -23,8 +23,6 @@ export default function(beltline) {
   }
 
   beltline.method('changeName', async ({ id, newName }, db) => {
-    const graph1 = await db.execute('CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }');
-
     await db.execute(`
       PREFIX f: <http://example.com/owl/families#>
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -33,6 +31,5 @@ export default function(beltline) {
       INSERT { f:${id} rdf:name "${newName}"^^xsd:string }
       WHERE  { f:${id} rdf:name ?o }
     `);
-    const graph2 = await db.execute('CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }');
   });
 }
