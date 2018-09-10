@@ -3,8 +3,8 @@ The codebase is a working example of [beltline.js](https://github.com/jaxoncreed
 
 ## Installation
 ```bash
-git clone https://github.com/jaxoncreed/<<Route>>
-cd <<Route>>
+git clone https://github.com/jaxoncreed/beltline-example.git
+cd beltline-example
 npm i
 ```
 
