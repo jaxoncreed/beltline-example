@@ -1,5 +1,5 @@
 # Beltline.js Example
-The codebase is a working example of beltline.js <<Insert link>>. It displays how you can integrate beltline with a react/reudx application to an auto-syncing, semantic web compatible site.
+The codebase is a working example of [beltline.js](https://github.com/jaxoncreed/beltline.js.git). It displays how you can integrate beltline with a react/reudx application to an auto-syncing, semantic web compatible site.
 
 ## Installation
 ```bash
